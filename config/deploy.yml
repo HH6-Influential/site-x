@@ -27,7 +27,7 @@ registry:
   server: ghcr.io
   username: HH6-Influential
   password:
-    - ${{ secrets.CICD_PAT_TOKEN }}
+    - ${{ secrets.GITHUB_TOKEN }}
 
 volumes:
   - /srv/sites/site-x/uploads:/app/uploads
