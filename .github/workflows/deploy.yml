@@ -42,9 +42,14 @@ jobs:
       - name: Install Kamal
         run: sudo gem install kamal
 
-      - name: Deploy
-        run: kamal deploy -v
+      - name: Deploy (build only)
+        run: kamal deploy --no-push -v
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           arch: amd64
           BUILDKIT_PROGRESS: plain
+
+      - name: Push image manually
+        run: |
+          docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+          docker push ghcr.io/hh6-influential/site-x:latest --progress=plain
