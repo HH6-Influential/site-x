@@ -34,25 +34,12 @@ jobs:
         with:
           authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
           tags: tag:ci
-      - name: Test SSH directly
-        run: |
-          ssh -vvv \
-            -o StrictHostKeyChecking=no \
-            -o ConnectTimeout=15 \
-            -o BatchMode=yes \
-            root@100.87.240.99 "echo connected"
 
       - name: Install Kamal
         run: sudo gem install kamal
 
-      - name: Deploy (build only)
-        run: kamal deploy --no-push -v
+      - name: Deploy
+        run: kamal deploy -v
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-          arch: amd64
           BUILDKIT_PROGRESS: plain
-
-      - name: Push image manually
-        run: |
-          docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-          docker push ghcr.io/hh6-influential/site-x:latest --progress=plain
