@@ -29,7 +29,7 @@ jobs:
           version: "1.36.0"
 
       - name: Install Kamal
-        run: gem install kamal
+        run: sudo gem install kamal
 
       - name: Docker Build and Push
         uses: docker/build-push-action@v6
@@ -43,7 +43,6 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Deploy
-        run: kamal deploy
+        run: sudo kamal deploy
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
