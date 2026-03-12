@@ -1,3 +1,6 @@
+builder:
+  arch: amd64
+
 service: site-x
 image: ghcr.io/hh6-influential/site-x
 
