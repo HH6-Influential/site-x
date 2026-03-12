@@ -33,13 +33,18 @@ jobs:
         uses: tailscale/github-action@v1
         with:
           authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
+      - name: Verify Tailscale
+        run: |
+          echo "=== Tailscale Status ==="
+          tailscale status
+          echo "=== Ping test ==="
+          tailscale ping 100.87.240.99
 
       - name: Install Kamal
         run: sudo gem install kamal
 
-      - name: Build image with Kamal
-        run: |
-          kamal build deliver -v
+      - name: Deploy (build only)
+        run: kamal deploy --no-push -v
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           arch: amd64
@@ -47,12 +52,5 @@ jobs:
 
       - name: Push image manually
         run: |
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker push ghcr.io/hh6-influential/site-x:latest
-
-      - name: Deploy without rebuilding
-        run: |
-          kamal deploy -v
-        env:
-          KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-          arch: amd64
+          docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+          docker push ghcr.io/hh6-influential/site-x:latest --progress=plain
