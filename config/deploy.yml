@@ -1,5 +1,6 @@
 builder:
   arch: amd64
+  driver: docker
 
 service: site-x
 image: hh6-influential/site-x
@@ -28,7 +29,7 @@ proxy:
 
 registry:
   server: ghcr.io
-  username: HH6-Influential
+  username: hh6-influential
   password:
     - KAMAL_REGISTRY_PASSWORD
 
