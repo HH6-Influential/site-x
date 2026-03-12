@@ -42,4 +42,3 @@ jobs:
         run: kamal deploy -v
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.CICD_PAT_TOKEN}}
-          BUILDKIT_PROGRESS: plain

@@ -17,8 +17,7 @@ servers:
       security-opt: "no-new-privileges:true"
       cap-drop: "ALL"
       tmpfs: "/tmp:size=64m"
-      log-driver: json-file
-      log-opt: max-size=10m
+      log-driver: journald
 
 proxy:
   ssl: true
