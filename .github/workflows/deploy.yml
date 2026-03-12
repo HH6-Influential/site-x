@@ -44,6 +44,8 @@ jobs:
             ghcr.io/hh6-influential/site-x:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Deploy
         run: sudo kamal deploy
