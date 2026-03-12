@@ -1,0 +1,44 @@
+service: site-x
+image: ghcr.io/YOUR_ORG/site-x
+
+servers:
+  web:
+    hosts:
+      - YOUR_SERVER_TAILSCALE_IP
+    options:
+      memory: 512m
+      cpus: "0.25"
+      pids-limit: "128"
+      read-only: "true"
+      security-opt: "no-new-privileges:true"
+      cap-drop: "ALL"
+      tmpfs: "/tmp:size=64m"
+
+proxy:
+  ssl: true
+  host: site-x.example.com
+  app_port: 5005
+  healthcheck:
+    path: /health
+    interval: 5
+    timeout: 3
+
+registry:
+  server: ghcr.io
+  username: YOUR_ORG
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+volumes:
+  - /srv/sites/site-x/uploads:/app/uploads
+  - /srv/sites/site-x/tmp:/app/tmp
+  - /srv/sites/site-x/data:/app/data
+  - /srv/sites/site-x/logs:/app/logs
+
+env:
+  clear:
+    NODE_ENV: production
+    PORT: "5005"
+    UPLOAD_DIR: /app/uploads
+    DATA_DIR: /app/data
+    LOG_DIR: /app/logs
