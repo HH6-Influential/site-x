@@ -28,11 +28,11 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Write Kamal Secrets File
         run: |
           mkdir -p .kamal
-          echo "${{ secrets.GITHUB_TOKEN }}" > .kamal/secrets
+          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .kamal/secrets
 
       - name: Tailscale Authenticate
         uses: tailscale/github-action@v1
