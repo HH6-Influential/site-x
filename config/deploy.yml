@@ -4,7 +4,7 @@ image: ghcr.io/YOUR_ORG/site-x
 servers:
   web:
     hosts:
-      - YOUR_SERVER_TAILSCALE_IP
+      - 100.87.240.99
     options:
       memory: 512m
       cpus: "0.25"
