@@ -30,7 +30,7 @@ registry:
   server: ghcr.io
   username: HH6-Influential
   password:
-    - ${{ secrets.GITHUB_TOKEN }}
+    - KAMAL_REGISTRY_PASSWORD
 
 volumes:
   - /srv/sites/site-x/uploads:/app/uploads
