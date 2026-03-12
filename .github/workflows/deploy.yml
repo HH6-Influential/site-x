@@ -33,12 +33,13 @@ jobs:
         uses: tailscale/github-action@v1
         with:
           authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
-      - name: Verify Tailscale
+      - name: Test SSH directly
         run: |
-          echo "=== Tailscale Status ==="
-          tailscale status
-          echo "=== Ping test ==="
-          tailscale ping 100.87.240.99
+          ssh -vvv \
+            -o StrictHostKeyChecking=no \
+            -o ConnectTimeout=15 \
+            -o BatchMode=yes \
+            root@100.87.240.99 "echo connected"
 
       - name: Install Kamal
         run: sudo gem install kamal
