@@ -32,7 +32,7 @@ jobs:
       - name: Write Kamal Secrets File
         run: |
           mkdir -p .kamal
-          echo "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" > .kamal/secrets
+          echo "KAMAL_REGISTRY_PASSWORD=\$KAMAL_REGISTRY_PASSWORD" > .kamal/secrets
 
       - name: Tailscale Authenticate
         uses: tailscale/github-action@v1
