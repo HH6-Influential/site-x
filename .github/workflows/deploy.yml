@@ -40,8 +40,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/hh6-influential/site-x:latest
+            ghcr.io/hh6-influential/site-x:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
