@@ -25,7 +25,7 @@ proxy:
 
 registry:
   server: ghcr.io
-  username: YOUR_ORG
+  username: HH6-Influential
   password:
     - KAMAL_REGISTRY_PASSWORD
 
