@@ -25,7 +25,7 @@ jobs:
       - name: Tailscale Authenticate
         uses: tailscale/github-action@v1
         with:
-          auth-key: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
           version: "1.36.0"
 
       - name: Install Kamal
