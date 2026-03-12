@@ -38,7 +38,8 @@ jobs:
         run: sudo gem install kamal
 
       - name: Deploy
-        run: kamal deploy -v -builder-progress=plain
+        run: kamal deploy -v
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           arch: amd64
+          BUILDKIT_PROGRESS: plain
