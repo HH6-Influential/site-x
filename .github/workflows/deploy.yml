@@ -34,8 +34,8 @@ jobs:
         with:
           authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
 
-      - name: sudo Install Kamal
-        run: gem install kamal
+      - name: Install Kamal
+        run: sudo gem install kamal
 
       - name: Deploy
         run: kamal deploy
