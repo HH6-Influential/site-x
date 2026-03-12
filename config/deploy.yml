@@ -1,5 +1,5 @@
 service: site-x
-image: ghcr.io/HH6-Influential/site-x
+image: ghcr.io/hh6-influential/site-x
 
 servers:
   web:
