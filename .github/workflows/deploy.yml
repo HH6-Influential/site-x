@@ -55,4 +55,5 @@ jobs:
       - name: Deploy
         run: sudo kamal deploy
         env:
+          arch: amd64
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
