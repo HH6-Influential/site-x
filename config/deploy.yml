@@ -17,7 +17,6 @@ servers:
       security-opt: "no-new-privileges:true"
       cap-drop: "ALL"
       tmpfs: "/tmp:size=64m"
-      log-driver: journald
 
 proxy:
   ssl: true
