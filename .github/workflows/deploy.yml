@@ -48,7 +48,7 @@ jobs:
       - name: Push image manually
         run: |
           docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-          docker push ghcr.io/hh6-influential/site-x:latest --progress=plain
+          docker push ghcr.io/hh6-influential/site-x:latest
 
       - name: Deploy without rebuilding
         run: |
