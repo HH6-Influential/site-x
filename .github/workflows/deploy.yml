@@ -33,6 +33,8 @@ jobs:
         run: |
           mkdir -p .kamal
           echo "KAMAL_REGISTRY_PASSWORD=\$KAMAL_REGISTRY_PASSWORD" > .kamal/secrets
+        env:
+          KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Tailscale Authenticate
         uses: tailscale/github-action@v1
