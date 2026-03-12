@@ -25,7 +25,7 @@ jobs:
       - name: Write Kamal Secrets File
         run: |
           mkdir -p .kamal
-          echo "KAMAL_REGISTRY_PASSWORD=\$KAMAL_REGISTRY_PASSWORD" > .kamal/secrets
+          echo "KAMAL_REGISTRY_PASSWORD=$KAMAL_REGISTRY_PASSWORD" > .kamal/secrets
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 
@@ -33,6 +33,11 @@ jobs:
         uses: tailscale/github-action@v1
         with:
           authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
+
+      - name: Verify Tailscale connectivity
+        run: |
+          tailscale status
+          ping -c 3 100.87.240.99
 
       - name: Install Kamal
         run: sudo gem install kamal
