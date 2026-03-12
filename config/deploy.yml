@@ -27,7 +27,7 @@ registry:
   server: ghcr.io
   username: HH6-Influential
   password:
-    - KAMAL_REGISTRY_PASSWORD
+    - ${{ secrets.CICD_PAT_TOKEN }}
 
 volumes:
   - /srv/sites/site-x/uploads:/app/uploads
