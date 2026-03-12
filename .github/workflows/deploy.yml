@@ -26,6 +26,7 @@ jobs:
         uses: tailscale/github-action@v1
         with:
           auth-key: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          version: "1.36.0"
 
       - name: Install Kamal
         run: gem install kamal
