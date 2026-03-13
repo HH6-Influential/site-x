@@ -13,9 +13,6 @@ servers:
     hosts:
       - 100.87.240.99
     options:
-      memory: 512m
-      cpus: "0.25"
-      pids-limit: "128"
       read-only: true
       security-opt: "no-new-privileges:true"
       cap-drop: "ALL"
