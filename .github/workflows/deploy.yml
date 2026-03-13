@@ -42,3 +42,4 @@ jobs:
         run: kamal deploy -v
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.CICD_PAT_TOKEN}}
+          DOCKER_HOST: unix:///run/user/1001/docker.sock
