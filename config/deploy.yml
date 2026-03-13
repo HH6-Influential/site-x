@@ -7,7 +7,6 @@ image: hh6-influential/site-x
 
 ssh:
   user: adminops
-  connect_timeout: 30
 
 servers:
   web:
@@ -50,3 +49,5 @@ env:
     UPLOAD_DIR: /app/uploads
     DATA_DIR: /app/data
     LOG_DIR: /app/logs
+docker:
+  host: unix:///run/user/1001/docker.sock
