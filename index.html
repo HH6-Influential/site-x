@@ -1,81 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Debug Index</title>
-	<style>
-		body {
-			background: #181c20;
-			color: #f3f3f3;
-			font-family: 'Segoe UI', Arial, sans-serif;
-			margin: 0;
-			padding: 0;
-			min-height: 100vh;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-		}
-		.container {
-			background: #23272b;
-			border-radius: 12px;
-			box-shadow: 0 4px 24px rgba(0,0,0,0.3);
-			padding: 2.5rem 2rem 2rem 2rem;
-			max-width: 420px;
-			width: 90%;
-			margin: 2rem auto;
-		}
-		h1 {
-			color: #4fd1c5;
-			margin-bottom: 0.5rem;
-			font-size: 2.2rem;
-			letter-spacing: 1px;
-		}
-		.env-info {
-			background: #1a2024;
-			border-radius: 8px;
-			padding: 1rem;
-			margin: 1.5rem 0;
-			font-size: 1rem;
-			word-break: break-all;
-		}
-		.status {
-			color: #f6ad55;
-			font-weight: bold;
-			margin-bottom: 1rem;
-		}
-		.footer {
-			margin-top: 2rem;
-			color: #718096;
-			font-size: 0.95rem;
-			text-align: center;
-		}
-		a {
-			color: #63b3ed;
-			text-decoration: none;
-		}
-		a:hover {
-			text-decoration: underline;
-		}
-	</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>site-x</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0f1117;
+      color: #e2e8f0;
+      font-family: 'Courier New', monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 640px;
+      width: 100%;
+      padding: 2rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 4px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      color: #68d391;
+      margin-bottom: 2rem;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      background: #68d391;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #f7fafc;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    h1 span { color: #63b3ed; }
+
+    .subtitle {
+      color: #718096;
+      font-size: 0.875rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .pipeline {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pipeline-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #4a5568;
+      margin-bottom: 1rem;
+    }
+
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      flex: 1;
+    }
+
+    .step-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #2d3748;
+      border: 2px solid #4a5568;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+    }
+
+    .step.done .step-icon {
+      background: #1c3a2a;
+      border-color: #68d391;
+      color: #68d391;
+    }
+
+    .step-label {
+      font-size: 0.65rem;
+      color: #4a5568;
+      text-align: center;
+    }
+
+    .step.done .step-label { color: #68d391; }
+
+    .connector {
+      flex: 1;
+      height: 2px;
+      background: #68d391;
+      margin-bottom: 1.2rem;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .meta-item {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      padding: 1rem;
+    }
+
+    .meta-key {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #4a5568;
+      margin-bottom: 0.35rem;
+    }
+
+    .meta-value {
+      font-size: 0.85rem;
+      color: #a0aec0;
+    }
+
+    .meta-value.highlight { color: #63b3ed; }
+  </style>
 </head>
 <body>
-	<div class="container">
-		<h1>Debug Index</h1>
-		<div class="status">Server is running</div>
-		<div class="env-info">
-			<strong>Environment:</strong> Development<br>
-			<strong>Date:</strong> <span id="date"></span><br>
-			<strong>User Agent:</strong> <span id="ua"></span>
-		</div>
-	</div>
-	<div class="footer">
-		&copy; 2026 Debug Index &mdash; Powered by HH6
-	</div>
-	<script>
-		document.getElementById('date').textContent = new Date().toLocaleString();
-		document.getElementById('ua').textContent = navigator.userAgent;
-	</script>
+  <div class="container">
+
+    <div class="badge">
+      <div class="dot"></div>
+      deployed &amp; healthy
+    </div>
+
+    <h1>site-<span>x</span></h1>
+    <p class="subtitle">CI/CD pipeline test — Kamal 2 · Rootless Docker · Tailscale</p>
+
+    <div class="pipeline">
+      <div class="pipeline-label">Pipeline</div>
+      <div class="steps">
+        <div class="step done">
+          <div class="step-icon">✓</div>
+          <div class="step-label">push</div>
+        </div>
+        <div class="connector"></div>
+        <div class="step done">
+          <div class="step-icon">✓</div>
+          <div class="step-label">build</div>
+        </div>
+        <div class="connector"></div>
+        <div class="step done">
+          <div class="step-icon">✓</div>
+          <div class="step-label">push image</div>
+        </div>
+        <div class="connector"></div>
+        <div class="step done">
+          <div class="step-icon">✓</div>
+          <div class="step-label">deploy</div>
+        </div>
+        <div class="connector"></div>
+        <div class="step done">
+          <div class="step-icon">✓</div>
+          <div class="step-label">health</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="meta-item">
+        <div class="meta-key">registry</div>
+        <div class="meta-value highlight">ghcr.io</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-key">proxy</div>
+        <div class="meta-value">kamal-proxy</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-key">runtime</div>
+        <div class="meta-value">rootless docker</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-key">network</div>
+        <div class="meta-value">tailscale</div>
+      </div>
+    </div>
+
+  </div>
 </body>
 </html>
