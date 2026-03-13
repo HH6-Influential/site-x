@@ -10,7 +10,7 @@ const server = http.createServer((req, res) => {
   }
 
   res.writeHead(200, { 'Content-Type': 'text/html' });
-  res.end('<h1>site-x is running</h1>');
+  res.end('<h1>site-x is running, new and improved!</h1>');
 });
 
 server.listen(PORT, '0.0.0.0', () => {
