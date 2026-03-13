@@ -5,6 +5,10 @@ builder:
 service: site-x
 image: hh6-influential/site-x
 
+ssh:
+  user: adminops
+  connect_timeout: 30
+
 servers:
   web:
     hosts:
