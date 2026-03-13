@@ -19,7 +19,7 @@ servers:
       tmpfs: "/tmp:size=64m"
 
 proxy:
-  ssl: true
+  ssl: false
   host: site-x.example.com
   app_port: 5005
   healthcheck:
