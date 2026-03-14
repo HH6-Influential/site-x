@@ -26,34 +26,64 @@ const server = http.createServer((req, res) => {
     let data = [];
     req.on('data', chunk => data.push(chunk));
     req.on('end', () => {
-      const boundary = req.headers['content-type'].split('boundary=')[1];
-      const buffer = Buffer.concat(data);
-      const parts = buffer.toString().split('--' + boundary);
-      for (const part of parts) {
-        if (part.includes('Content-Disposition')) {
-          const match = part.match(/filename="([^"]+)"/);
-          if (match) {
-            const filename = match[1];
-            const fileStart = part.indexOf('\r\n\r\n') + 4;
-            const fileEnd = part.lastIndexOf('\r\n');
-            const fileData = part.substring(fileStart, fileEnd);
-            const fileBuffer = Buffer.from(fileData, 'binary');
-            const savePath = path.join(__dirname, 'uploads', filename);
-            fs.writeFile(savePath, fileBuffer, err => {
-              if (err) {
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('Upload failed');
+      try {
+        const contentType = req.headers['content-type'];
+        if (!contentType || !contentType.includes('multipart/form-data')) {
+          res.writeHead(400, { 'Content-Type': 'text/plain' });
+          res.end('Invalid content type. Please upload using a form with enctype="multipart/form-data".');
+          return;
+        }
+        const boundary = contentType.split('boundary=')[1];
+        if (!boundary) {
+          res.writeHead(400, { 'Content-Type': 'text/plain' });
+          res.end('Malformed upload request: missing boundary.');
+          return;
+        }
+        const buffer = Buffer.concat(data);
+        const parts = buffer.toString().split('--' + boundary);
+        let foundFile = false;
+        for (const part of parts) {
+          if (part.includes('Content-Disposition')) {
+            const match = part.match(/filename="([^"]+)"/);
+            if (match) {
+              const filename = match[1];
+              if (!filename) {
+                res.writeHead(400, { 'Content-Type': 'text/plain' });
+                res.end('No filename provided.');
                 return;
               }
-              res.writeHead(200, { 'Content-Type': 'text/plain' });
-              res.end('Uploaded');
-            });
-            return;
+              const fileStart = part.indexOf('\r\n\r\n') + 4;
+              const fileEnd = part.lastIndexOf('\r\n');
+              const fileData = part.substring(fileStart, fileEnd);
+              if (!fileData || fileData.length === 0) {
+                res.writeHead(400, { 'Content-Type': 'text/plain' });
+                res.end('Uploaded file is empty.');
+                return;
+              }
+              const fileBuffer = Buffer.from(fileData, 'binary');
+              const savePath = path.join(__dirname, 'uploads', filename);
+              fs.writeFile(savePath, fileBuffer, err => {
+                if (err) {
+                  res.writeHead(500, { 'Content-Type': 'text/plain' });
+                  res.end('Upload failed: ' + err.message);
+                  return;
+                }
+                res.writeHead(200, { 'Content-Type': 'text/plain' });
+                res.end('Uploaded successfully: ' + filename);
+              });
+              foundFile = true;
+              return;
+            }
           }
         }
+        if (!foundFile) {
+          res.writeHead(400, { 'Content-Type': 'text/plain' });
+          res.end('No file found in upload. Please select an image file.');
+        }
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Unexpected error during upload: ' + err.message);
       }
-      res.writeHead(400, { 'Content-Type': 'text/plain' });
-      res.end('No file uploaded');
     });
     return;
   }
