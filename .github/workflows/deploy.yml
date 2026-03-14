@@ -33,7 +33,6 @@ jobs:
         uses: tailscale/github-action@v1
         with:
           authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
-          tags: tag:ci
 
       - name: Install Kamal
         run: sudo gem install kamal
