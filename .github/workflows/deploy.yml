@@ -29,10 +29,23 @@ jobs:
         env:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.CICD_PAT_TOKEN }}
 
-      - name: Tailscale Authenticate
-        uses: tailscale/github-action@v1
-        with:
-          authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
+      - name: Install Tailscale
+        run: |
+          curl -fsSL https://tailscale.com/install.sh | sh
+
+      - name: Start tailscaled
+        run: |
+          sudo mkdir -p /var/run/tailscale
+          sudo tailscaled --socket=/var/run/tailscale/tailscaled.sock &
+          sleep 5
+
+      - name: Authenticate Tailscale
+        run: |
+          sudo tailscale --socket=/var/run/tailscale/tailscaled.sock up \
+            --authkey=${{ secrets.TAILSCALE_AUTH_KEY }}
+
+      - name: Verify Tailscale
+        run: tailscale status
 
       - name: Install Kamal
         run: sudo gem install kamal
