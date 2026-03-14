@@ -65,7 +65,7 @@
       margin-bottom: 2.5rem;
     }
 
-    .pipeline {
+    .panel {
       background: #1a1f2e;
       border: 1px solid #2d3748;
       border-radius: 8px;
@@ -73,7 +73,7 @@
       margin-bottom: 1.5rem;
     }
 
-    .pipeline-label {
+    .panel-label {
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
@@ -84,7 +84,6 @@
     .steps {
       display: flex;
       align-items: center;
-      gap: 0;
     }
 
     .step {
@@ -155,6 +154,114 @@
     }
 
     .meta-value.highlight { color: #63b3ed; }
+
+    /* Upload area */
+    .upload-zone {
+      border: 1px dashed #2d3748;
+      border-radius: 6px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+
+    .upload-zone:hover,
+    .upload-zone.drag-over {
+      border-color: #63b3ed;
+      background: #141824;
+    }
+
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #4a5568;
+    }
+
+    .upload-zone-text {
+      font-size: 0.75rem;
+      color: #4a5568;
+    }
+
+    .upload-zone-text span {
+      color: #63b3ed;
+    }
+
+    .upload-zone.has-file .upload-icon { color: #68d391; }
+    .upload-zone.has-file .upload-zone-text { color: #68d391; }
+
+    .upload-btn {
+      width: 100%;
+      margin-top: 0.75rem;
+      background: #68d391;
+      color: #0f1117;
+      border: none;
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      transition: background 0.2s;
+    }
+
+    .upload-btn:disabled {
+      background: #2d3748;
+      color: #4a5568;
+      cursor: not-allowed;
+    }
+
+    .upload-btn:not(:disabled):hover { background: #9ae6b4; }
+
+    .status-line {
+      margin-top: 0.75rem;
+      font-size: 0.75rem;
+      min-height: 1rem;
+      color: #4a5568;
+    }
+
+    .status-line.ok { color: #68d391; }
+    .status-line.err { color: #f56565; }
+    .status-line.pending { color: #63b3ed; }
+
+    /* Gallery */
+    .gallery-empty {
+      font-size: 0.75rem;
+      color: #4a5568;
+      padding: 0.5rem 0;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .gallery-item {
+      aspect-ratio: 1;
+      border: 1px solid #2d3748;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #0f1117;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -168,8 +275,8 @@
     <h1>site-<span>x</span></h1>
     <p class="subtitle">CI/CD pipeline test — Kamal 2 · Rootless Docker · Tailscale</p>
 
-    <div class="pipeline">
-      <div class="pipeline-label">Pipeline</div>
+    <div class="panel">
+      <div class="panel-label">Pipeline</div>
       <div class="steps">
         <div class="step done">
           <div class="step-icon">✓</div>
@@ -198,7 +305,7 @@
       </div>
     </div>
 
-    <div class="meta">
+    <div class="meta" style="margin-bottom:1.5rem;">
       <div class="meta-item">
         <div class="meta-key">registry</div>
         <div class="meta-value highlight">ghcr.io</div>
@@ -217,71 +324,116 @@
       </div>
     </div>
 
-  </div>
+    <div class="panel">
+      <div class="panel-label">Upload</div>
+      <div class="upload-zone" id="uploadZone">
+        <input type="file" id="fileInput" accept="image/*">
+        <div class="upload-icon">↑</div>
+        <div class="upload-zone-text">drop image or <span>browse</span></div>
+      </div>
+      <button class="upload-btn" id="uploadBtn" disabled>Upload</button>
+      <div class="status-line" id="uploadStatus"></div>
+    </div>
 
-  <div class="pipeline" style="margin-top:2rem;">
-    <h2 style="color:#63b3ed;margin-bottom:1rem;">Upload Image</h2>
-    <form id="uploadForm" enctype="multipart/form-data" method="post" action="/uploads" style="display:flex;flex-direction:column;gap:1rem;">
-      <input type="file" name="image" accept="image/*" required style="background:#1a1f2e;color:#e2e8f0;border:1px solid #2d3748;padding:0.5rem;border-radius:4px;">
-      <button type="submit" style="background:#68d391;color:#0f1117;padding:0.5rem 1rem;border:none;border-radius:4px;font-weight:700;">Upload</button>
-    </form>
-    <div id="uploadStatus" style="margin-top:1rem;font-size:0.95rem;font-family:'Courier New',monospace;"></div>
-  </div>
+    <div class="panel">
+      <div class="panel-label">Images</div>
+      <div id="gallery"><div class="gallery-empty">no images yet</div></div>
+    </div>
 
-  <div style="margin-top:2rem;">
-    <h2 style="color:#63b3ed;margin-bottom:1rem;">Uploaded Images</h2>
-    <div id="gallery" style="display:flex;flex-wrap:wrap;gap:1rem;"></div>
   </div>
 
   <script>
-    // Handle upload form
-    document.getElementById('uploadForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const form = e.target;
-      const formData = new FormData(form);
-      const status = document.getElementById('uploadStatus');
-      status.textContent = 'Uploading...';
-      status.style.color = '#63b3ed';
-      fetch('/uploads', {
-        method: 'POST',
-        body: formData
-      }).then(async r => {
-        const msg = await r.text();
-        if (r.ok) {
-          status.textContent = msg;
-          status.style.color = '#68d391';
-          loadGallery();
-        } else {
-          status.textContent = 'Error: ' + msg;
-          status.style.color = '#f56565';
-        }
-      }).catch(err => {
-        status.textContent = 'Upload failed: ' + err.message;
-        status.style.color = '#f56565';
-      });
+    const fileInput = document.getElementById('fileInput');
+    const uploadZone = document.getElementById('uploadZone');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadStatus = document.getElementById('uploadStatus');
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length > 0) {
+        uploadZone.classList.add('has-file');
+        uploadZone.querySelector('.upload-zone-text').textContent = fileInput.files[0].name;
+        uploadBtn.disabled = false;
+      }
     });
 
-    // Load gallery
+    uploadZone.addEventListener('dragover', e => {
+      e.preventDefault();
+      uploadZone.classList.add('drag-over');
+    });
+
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('drag-over');
+    });
+
+    uploadZone.addEventListener('drop', e => {
+      e.preventDefault();
+      uploadZone.classList.remove('drag-over');
+      if (e.dataTransfer.files.length > 0) {
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+
+    uploadBtn.addEventListener('click', () => {
+      if (!fileInput.files.length) return;
+
+      const formData = new FormData();
+      formData.append('image', fileInput.files[0]);
+
+      uploadStatus.textContent = 'uploading...';
+      uploadStatus.className = 'status-line pending';
+      uploadBtn.disabled = true;
+
+      fetch('/uploads', { method: 'POST', body: formData })
+        .then(async r => {
+          const msg = await r.text();
+          if (r.ok) {
+            uploadStatus.textContent = '✓ ' + msg;
+            uploadStatus.className = 'status-line ok';
+            uploadZone.classList.remove('has-file');
+            uploadZone.querySelector('.upload-zone-text').innerHTML = 'drop image or <span>browse</span>';
+            fileInput.value = '';
+            loadGallery();
+          } else {
+            uploadStatus.textContent = '✗ ' + msg;
+            uploadStatus.className = 'status-line err';
+          }
+        })
+        .catch(err => {
+          uploadStatus.textContent = '✗ ' + err.message;
+          uploadStatus.className = 'status-line err';
+        })
+        .finally(() => {
+          uploadBtn.disabled = false;
+        });
+    });
+
     function loadGallery() {
       fetch('/uploads-list')
         .then(r => r.json())
         .then(files => {
           const gallery = document.getElementById('gallery');
+          if (!files.length) {
+            gallery.innerHTML = '<div class="gallery-empty">no images yet</div>';
+            return;
+          }
           gallery.innerHTML = '';
+          const grid = document.createElement('div');
+          grid.className = 'gallery-grid';
           files.forEach(file => {
+            const item = document.createElement('div');
+            item.className = 'gallery-item';
             const img = document.createElement('img');
             img.src = '/uploads/' + encodeURIComponent(file);
             img.alt = file;
-            img.style.maxWidth = '120px';
-            img.style.maxHeight = '120px';
-            img.style.border = '1px solid #2d3748';
-            img.style.borderRadius = '6px';
-            img.style.background = '#0f1117';
-            img.style.boxShadow = '0 2px 8px #1a1f2e';
-            gallery.appendChild(img);
+            item.appendChild(img);
+            grid.appendChild(item);
           });
-        });
+          gallery.appendChild(grid);
+        })
+        .catch(() => {});
     }
+
     loadGallery();
   </script>
 </body>

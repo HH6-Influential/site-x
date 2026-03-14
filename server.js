@@ -3,83 +3,127 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 5005;
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, 'uploads');
+
+function parseMultipart(buffer, boundary) {
+  const boundaryBuf = Buffer.from('--' + boundary);
+  const results = [];
+  let start = 0;
+
+  while (start < buffer.length) {
+    const boundaryIdx = buffer.indexOf(boundaryBuf, start);
+    if (boundaryIdx === -1) break;
+
+    const afterBoundary = boundaryIdx + boundaryBuf.length;
+
+    // Check for final boundary (--)
+    if (buffer[afterBoundary] === 0x2d && buffer[afterBoundary + 1] === 0x2d) break;
+
+    // Skip CRLF after boundary
+    const headerStart = afterBoundary + 2;
+
+    // Find end of headers (double CRLF)
+    const CRLF2 = Buffer.from('\r\n\r\n');
+    const headerEnd = buffer.indexOf(CRLF2, headerStart);
+    if (headerEnd === -1) break;
+
+    const headerStr = buffer.slice(headerStart, headerEnd).toString('utf8');
+    const dataStart = headerEnd + 4;
+
+    // Find next boundary
+    const nextBoundary = buffer.indexOf(boundaryBuf, dataStart);
+    if (nextBoundary === -1) break;
+
+    // Data ends just before \r\n--boundary
+    const dataEnd = nextBoundary - 2;
+    const data = buffer.slice(dataStart, dataEnd);
+
+    results.push({ headers: headerStr, data });
+    start = nextBoundary;
+  }
+
+  return results;
+}
 
 const server = http.createServer((req, res) => {
-    // List uploaded images
-    if (req.method === 'GET' && req.url === '/uploads-list') {
-      const uploadsDir = path.join(__dirname, 'uploads');
-      fs.readdir(uploadsDir, (err, files) => {
-        if (err) {
-          res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify([]));
-          return;
-        }
-        // Only show image files
-        const imageFiles = files.filter(f => f.match(/\.(jpg|jpeg|png|gif)$/i));
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(imageFiles));
-      });
-      return;
-    }
+
+  // List uploaded images
+  if (req.method === 'GET' && req.url === '/uploads-list') {
+    fs.readdir(UPLOAD_DIR, (err, files) => {
+      if (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify([]));
+        return;
+      }
+      const imageFiles = files.filter(f => f.match(/\.(jpg|jpeg|png|gif)$/i));
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(imageFiles));
+    });
+    return;
+  }
+
   // Handle image upload
   if (req.method === 'POST' && req.url === '/uploads') {
-    let data = [];
-    req.on('data', chunk => data.push(chunk));
+    const chunks = [];
+    req.on('data', chunk => chunks.push(chunk));
     req.on('end', () => {
       try {
-        const contentType = req.headers['content-type'];
-        if (!contentType || !contentType.includes('multipart/form-data')) {
+        const contentType = req.headers['content-type'] || '';
+        if (!contentType.includes('multipart/form-data')) {
           res.writeHead(400, { 'Content-Type': 'text/plain' });
           res.end('Invalid content type. Please upload using a form with enctype="multipart/form-data".');
           return;
         }
-        const boundary = contentType.split('boundary=')[1];
-        if (!boundary) {
+
+        const boundaryMatch = contentType.match(/boundary=([^\s;]+)/);
+        if (!boundaryMatch) {
           res.writeHead(400, { 'Content-Type': 'text/plain' });
           res.end('Malformed upload request: missing boundary.');
           return;
         }
-        const buffer = Buffer.concat(data);
-        const parts = buffer.toString().split('--' + boundary);
-        let foundFile = false;
-        for (const part of parts) {
-          if (part.includes('Content-Disposition')) {
-            const match = part.match(/filename="([^"]+)"/);
-            if (match) {
-              const filename = match[1];
-              if (!filename) {
-                res.writeHead(400, { 'Content-Type': 'text/plain' });
-                res.end('No filename provided.');
-                return;
-              }
-              const fileStart = part.indexOf('\r\n\r\n') + 4;
-              const fileEnd = part.lastIndexOf('\r\n');
-              const fileData = part.substring(fileStart, fileEnd);
-              if (!fileData || fileData.length === 0) {
-                res.writeHead(400, { 'Content-Type': 'text/plain' });
-                res.end('Uploaded file is empty.');
-                return;
-              }
-              const fileBuffer = Buffer.from(fileData, 'binary');
-              const savePath = path.join(__dirname, 'uploads', filename);
-              fs.writeFile(savePath, fileBuffer, err => {
-                if (err) {
-                  res.writeHead(500, { 'Content-Type': 'text/plain' });
-                  res.end('Upload failed: ' + err.message);
-                  return;
-                }
-                res.writeHead(200, { 'Content-Type': 'text/plain' });
-                res.end('Uploaded successfully: ' + filename);
-              });
-              foundFile = true;
-              return;
-            }
-          }
-        }
-        if (!foundFile) {
+
+        const boundary = boundaryMatch[1];
+        const buffer = Buffer.concat(chunks);
+        const parts = parseMultipart(buffer, boundary);
+
+        const filePart = parts.find(p => p.headers.includes('filename='));
+        if (!filePart) {
           res.writeHead(400, { 'Content-Type': 'text/plain' });
           res.end('No file found in upload. Please select an image file.');
+          return;
         }
+
+        const filenameMatch = filePart.headers.match(/filename="([^"]+)"/);
+        if (!filenameMatch || !filenameMatch[1]) {
+          res.writeHead(400, { 'Content-Type': 'text/plain' });
+          res.end('No filename provided.');
+          return;
+        }
+
+        const filename = path.basename(filenameMatch[1]);
+        if (!filename.match(/\.(jpg|jpeg|png|gif)$/i)) {
+          res.writeHead(400, { 'Content-Type': 'text/plain' });
+          res.end('Only image files are allowed (jpg, jpeg, png, gif).');
+          return;
+        }
+
+        if (filePart.data.length === 0) {
+          res.writeHead(400, { 'Content-Type': 'text/plain' });
+          res.end('Uploaded file is empty.');
+          return;
+        }
+
+        const savePath = path.join(UPLOAD_DIR, filename);
+        fs.writeFile(savePath, filePart.data, err => {
+          if (err) {
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('Upload failed: ' + err.message);
+            return;
+          }
+          res.writeHead(200, { 'Content-Type': 'text/plain' });
+          res.end('Uploaded successfully: ' + filename);
+        });
+
       } catch (err) {
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end('Unexpected error during upload: ' + err.message);
@@ -90,8 +134,8 @@ const server = http.createServer((req, res) => {
 
   // Serve uploaded images
   if (req.method === 'GET' && req.url.startsWith('/uploads/')) {
-    const fileName = req.url.replace('/uploads/', '');
-    const filePath = path.join(__dirname, 'uploads', fileName);
+    const fileName = path.basename(req.url.replace('/uploads/', ''));
+    const filePath = path.join(UPLOAD_DIR, fileName);
     fs.readFile(filePath, (err, data) => {
       if (err) {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
@@ -108,15 +152,15 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Health check
   if (req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('ok');
     return;
   }
 
-  // Path to your local HTML file
+  // Serve index.html
   const filePath = path.join(__dirname, 'index.html');
-
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
       res.writeHead(500, { 'Content-Type': 'text/plain' });
@@ -124,7 +168,6 @@ const server = http.createServer((req, res) => {
       console.error(err);
       return;
     }
-
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(data);
   });
