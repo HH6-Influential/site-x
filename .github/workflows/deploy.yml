@@ -43,10 +43,7 @@ jobs:
         run: |
           sudo tailscale --socket=/var/run/tailscale/tailscaled.sock up \
             --authkey=${{ secrets.TAILSCALE_AUTH_KEY }}
-
-      - name: Verify Tailscale
-        run: tailscale status
-
+            
       - name: Install Kamal
         run: sudo gem install kamal
 
