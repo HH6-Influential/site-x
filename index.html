@@ -218,5 +218,58 @@
     </div>
 
   </div>
+
+  <div style="margin-top:2rem;">
+    <h2 style="color:#63b3ed;margin-bottom:1rem;">Upload Image</h2>
+    <form id="uploadForm" enctype="multipart/form-data" method="post" action="/uploads">
+      <input type="file" name="image" accept="image/*" required style="margin-bottom:1rem;">
+      <button type="submit" style="background:#68d391;color:#0f1117;padding:0.5rem 1rem;border:none;border-radius:4px;">Upload</button>
+    </form>
+    <div id="uploadStatus" style="margin-top:1rem;color:#68d391;"></div>
+  </div>
+
+  <div style="margin-top:2rem;">
+    <h2 style="color:#63b3ed;margin-bottom:1rem;">Uploaded Images</h2>
+    <div id="gallery" style="display:flex;flex-wrap:wrap;gap:1rem;"></div>
+  </div>
+
+  <script>
+    // Handle upload form
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      fetch('/uploads', {
+        method: 'POST',
+        body: formData
+      }).then(r => r.text()).then(msg => {
+        document.getElementById('uploadStatus').textContent = msg;
+        loadGallery();
+      }).catch(() => {
+        document.getElementById('uploadStatus').textContent = 'Upload failed';
+      });
+    });
+
+    // Load gallery
+    function loadGallery() {
+      fetch('/uploads-list')
+        .then(r => r.json())
+        .then(files => {
+          const gallery = document.getElementById('gallery');
+          gallery.innerHTML = '';
+          files.forEach(file => {
+            const img = document.createElement('img');
+            img.src = '/uploads/' + encodeURIComponent(file);
+            img.alt = file;
+            img.style.maxWidth = '120px';
+            img.style.maxHeight = '120px';
+            img.style.border = '1px solid #2d3748';
+            img.style.borderRadius = '6px';
+            gallery.appendChild(img);
+          });
+        });
+    }
+    loadGallery();
+  </script>
 </body>
 </html>
