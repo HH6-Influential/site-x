@@ -129,7 +129,7 @@
 
     .meta {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 1rem;
     }
 
@@ -154,8 +154,8 @@
     }
 
     .meta-value.highlight { color: #63b3ed; }
+    .meta-value.ok { color: #68d391; }
 
-    /* Upload area */
     .upload-zone {
       border: 1px dashed #2d3748;
       border-radius: 6px;
@@ -192,9 +192,7 @@
       color: #4a5568;
     }
 
-    .upload-zone-text span {
-      color: #63b3ed;
-    }
+    .upload-zone-text span { color: #63b3ed; }
 
     .upload-zone.has-file .upload-icon { color: #68d391; }
     .upload-zone.has-file .upload-zone-text { color: #68d391; }
@@ -235,7 +233,6 @@
     .status-line.err { color: #f56565; }
     .status-line.pending { color: #63b3ed; }
 
-    /* Gallery */
     .gallery-empty {
       font-size: 0.75rem;
       color: #4a5568;
@@ -321,6 +318,14 @@
       <div class="meta-item">
         <div class="meta-key">network</div>
         <div class="meta-value">tailscale</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-key">persistence</div>
+        <div class="meta-value ok">operational</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-key">volumes</div>
+        <div class="meta-value">bind mount</div>
       </div>
     </div>
 
