@@ -13,7 +13,10 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 COPY . .
 
-RUN chown -R siteuser:siteuser /app
+RUN chown -R siteuser:siteuser /app \
+    && mkdir -p /app/uploads /app/tmp /app/data /app/logs \
+    && chown siteuser:siteuser /app/uploads /app/tmp /app/data /app/logs \
+    && chmod 750 /app/uploads /app/tmp /app/data /app/logs
 
 USER siteuser
 
